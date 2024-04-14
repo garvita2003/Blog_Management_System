@@ -1,0 +1,133 @@
+<%- include('../layouts/adminheader.ejs') %>
+
+<div id="content" class="p-4 p-md-5 pt-5">
+    <h2 class="mb-4">Update Post</h2>
+    <div class="container">
+        <form method="POST" id="editPost">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h5>Title</h5>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <input type="hidden" name="id" value="<%= post._id %>">
+                    <input type="text" name="title" value="<%= post.title %>" class="w-100" placeholder="Enter Title" required>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-primary" data-toggle="#uploadModel" data-target="#exampleModalCenter">
+                        Upload Image
+                    </button>
+                    <input type="hidden" name="image" value="<%= post.image %>">
+                </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-sm-12">
+                    <h5>Content</h5>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <textarea name="content" row="5" class="w-100" placeholder="Enter Content" required ><%= post.content %></textarea>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-sm-12">
+                    <h5>Created At</h5>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <input type="date" name="createdAt" class="w-100" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <input type="submit" value="Update Post" class="btn btn-warning">
+                </div>
+            </div>
+        </form>
+    </div>
+    <p style="color: green;" class="status"></p>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="uploadModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Upload</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="file" name="image" class="form-control" required>
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function(){
+
+        $('#editPost').submit(function(event){
+            event.preventDefault();
+            
+            
+            var formData = {};
+            $.each($(this).serializeArray(), function(i, field){
+                formData[field.name] = field.value;
+            });
+
+            $.ajax({
+                url:"/update-post",
+                data: formData,
+                type: 'POST',   
+                success:function(data){
+                    if(data.success == true){
+                        $('.status').text(data.msg);
+                    }
+                    else{
+                        $('.status').text(data.msg);
+                    }
+                }
+            })
+        })
+
+        $('#uploadForm').submit(function(event){
+            event.preventDefault();
+
+            $.ajax({
+                url:"/upload-post-image",
+                data: new FormData(this),
+                processData: false,
+                contentType: false,
+                type: 'POST',   
+                success:function(data){
+                    if(data.success == true){
+                        $('#image').val(data.path);
+                        alert(data.msg);
+                        $('#uploadModel').modal('hide');
+                    }
+                    else{
+                        alert(data.msg);
+                    }
+                }
+            })
+        })
+        
+    })
+  </script>
+
+<%- include('../layouts/adminfooter.ejs') %>

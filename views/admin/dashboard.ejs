@@ -1,0 +1,74 @@
+<%- include('../layouts/adminheader.ejs') %>
+
+<div id="content" class="p-4 p-md-5 pt-5">
+    <h2 class="mb-4">Dashboard</h2>
+    <table class="table">
+        <thread>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Content</th>
+                <th>Image</th>
+                <th>Delete</th>
+                <th>Edit</th>
+            </tr>
+        </thread>
+        <tbody>
+            <% 
+            if(posts.length>0){
+                var i =1;
+                posts.forEach(function(post){
+                    %>
+                    <tr>
+                        <td><%= i++ %></td>
+                        <td><%= post.title %></td>
+                        <td><%= post.content %></td>
+                        <td><img src="<%= post.image %>" width="100" height="100" /></td>
+                        <td><a href="#" class="btn btn-danger deletePost" data-id="<%= post._id %>">Delete</a></td>
+                        <td><a href="/edit-post/<%= post._id %>" class="btn btn-warning">Edit</a></td>
+                    </tr>
+                    <%
+                })
+            }
+            else{
+                %>
+                <tr>
+                    <td colspan="4">No posts found</td>
+                </tr>
+                <%
+            }
+            %>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('.deletePost').click(function(){
+            var postId = $(this).attr('data-id');
+            var obj = $(this);
+            
+            $.ajax({
+                url: '/delete-post',
+                method: 'POST', 
+                data: {id: postId}, 
+                success: function(response){
+                    
+                    if(response.success == true){
+
+                        var socket = io();
+                        socket.emit('delete_post', postId);
+
+                        $(obj).parent().parent().remove();
+                        alert(response.msg);
+                    }
+                    else{
+                        alert(response.msg);
+                    }
+                }
+            })
+        })
+    })
+</script>
+
+<%- include('../layouts/adminfooter.ejs') %>
